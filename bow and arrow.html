@@ -1,0 +1,449 @@
+<html>
+<head><title>Bow and arrow</title>
+<meta charset="utf-8"/>
+<link href="bowandarrowstyel.css" type="text/css" rel="stylesheet">
+</head>
+<body bgcolor="#07431A">
+<h1>The Official Bow And Arrow Game</h1>
+<p>Hit the bullseye and get points.You have only 10 arrows with you.Try to score the maximum points.Press and hold the 'spacebar' to aim and release it to fire the arrow.You can move your bow up and down using up and down key on the keyboard.Hit the 'bomb' and that arrow goes bye-bye. Hit a 'split',get 2 arrows instead of the existing one.Hit 'warp' and your arrow will be shifted to a position in range of the bullseye,however this may not always gaurantee a definite shot on it. :P </p> 
+<div class="overall">
+<img src="http://www.dccomics.com/sites/default/files/TV_Gallery_Arrow01_53712d787bb741.46013658.jpg" width="373px" height="600px">
+</div>
+<div class="overall">
+<canvas id="mycanvas" width="600px" height="600px"></canvas>
+<style type="text/css">
+* { padding: 0; margin: 0; }
+	canvas { background: #eee; display: block; margin: 0 auto; }
+</style>
+<script type="text/javascript"> 
+var canvas=document.getElementById("mycanvas");
+var ctx=canvas.getContext("2d");
+var x=500,y=300,xb=50,yb=300;
+var xa=xb,ya=yb;
+var dy=2;
+var radius=15;
+var uppressed=false,downpressed=false,spacepressed=false;
+var lives=10,score=0;
+var k=0,pull=0;
+var paused=false;
+var ys1=550;var dys=4; var ys2=750; var ys3=950; var ys4=1150; var ys5=1350; var ys6=1550;
+var splitarrow=0,splited=false;
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+
+function drawbullseye()
+{
+	ctx.beginPath();
+	ctx.arc(x,y,radius,0,Math.PI*2,false);
+	ctx.strokeStyle="red";
+	ctx.stroke();
+	ctx.closePath();
+	ctx.beginPath();
+	var font="bold"+(radius+5)+"px serif";
+	ctx.font=font;
+	ctx.fillText("50",495,y);
+	ctx.closePath();
+	ctx.beginPath();
+	ctx.arc(x,y,radius+15,0,Math.PI*2,false);
+	ctx.strokeStyle="blue";
+	ctx.stroke();
+	ctx.closePath();
+	ctx.beginPath();
+	font="bold"+(radius+15)+"px serif";
+	ctx.font=font;
+	ctx.fillText("30",495,y-20);
+	ctx.closePath();
+	ctx.beginPath();
+	ctx.arc(x,y,radius+40,0,Math.PI*2,false);
+	ctx.strokeStyle="green";
+	ctx.stroke();
+	ctx.closePath();
+	font="bold"+(radius+40)+"px serif";
+	ctx.font=font;
+	ctx.fillText("10",495,y-43);
+	
+
+}	
+
+function drawbow()
+{
+	ctx.beginPath();
+	ctx.arc(xb,yb,50,-Math.PI/2,Math.PI/2,false);
+	ctx.strokeStyle="black";
+	ctx.stroke();
+	ctx.closePath();
+	ctx.beginPath()
+	ctx.moveTo(xb,yb-50);
+	ctx.lineTo(xb,yb+50);
+	ctx.strokeStyle="black";
+	ctx.stroke();
+	ctx.closePath();
+	ctx.beginPath();
+	ctx.moveTo(xb+40,yb-5);
+	ctx.lineTo(xb+60,yb-5);
+	ctx.stroke();
+	ctx.closePath();
+	ctx.beginPath();
+	ctx.moveTo(xb+40,yb+5);
+	ctx.lineTo(xb+60,yb+5);
+	ctx.stroke();
+	ctx.closePath();
+
+
+}
+
+function drawarrow()
+{
+	ctx.beginPath();
+	ctx.rect(xa,ya-2,80,4);
+	ctx.fillStyle="green";
+	ctx.fill();
+	ctx.closePath();
+ctx.beginPath();
+ctx.moveTo(xa+80,ya-7);
+ctx.lineTo(xa+80,ya+7);
+ctx.lineTo(xa+90,ya);
+ctx.lineTo(xa+80,ya-7);
+ctx.fill();
+ctx.closePath();
+}
+function drawarrowpull()
+{
+	ctx.beginPath();
+	ctx.moveTo(xb+40,yb-5);
+	ctx.lineTo(xb+60,yb-5);
+	ctx.strokeStyle="#eee";
+	ctx.stroke();
+	ctx.closePath();
+ctx.beginPath();
+	ctx.rect(xb-20,yb-2,80,4);
+	ctx.fillStyle="green";
+	ctx.fill();
+	ctx.closePath();
+ctx.beginPath();
+ctx.moveTo(xb+60,ya-7);
+ctx.lineTo(xb+60,ya+7);
+ctx.lineTo(xb+70,ya);
+ctx.lineTo(xb+60,ya-7);
+ctx.fill();
+ctx.closePath();
+ctx.beginPath();
+ctx.moveTo(xb,yb-50);
+ctx.lineTo(xb-20,yb-2);
+ctx.lineTo(xb,yb+50);
+ctx.strokeStyle="black";
+ctx.stroke();
+ctx.closePath();
+ctx.clearRect(xb+70,yb-6,25,12);
+
+
+
+}
+function keyDownHandler(e){
+	if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+        e.preventDefault();}
+	if(e.keyCode==38)
+		uppressed=true;
+	else if(e.keyCode==40)
+		downpressed=true;
+	else if(e.keyCode==32)
+	spacepressed=true;	
+}
+function keyUpHandler(e)
+{
+	if(e.keyCode==38)
+		uppressed=false;
+	else if(e.keyCode==40)
+		downpressed=false;
+	else if(e.keyCode==32)
+		{spacepressed=false;
+	k++;}
+}
+function drawlives()
+{
+	  ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("Arrows Left: "+lives, 180,35);
+     ctx.fillText("score: "+score, 180,50);
+    ctx.fillStyle="black";
+    ctx.font="bold 12px serif";
+}
+function pausegame()
+{paused=true;
+}
+function resumegame()
+{
+	paused=false;
+	
+}
+function restartgame()
+{
+	document.location.reload();
+}
+function sleep(miliseconds,type) {
+   var currentTime = new Date().getTime();
+
+   while (currentTime + miliseconds >= new Date().getTime()) {
+  
+   }
+}
+function distance(xa,ya,x,y)
+{
+	var d=Math.sqrt(((x-xa)*(x-xa))+((y-ya)*(y-ya)));
+	return d;
+}
+function drawbombandsplit()
+{
+	ctx.beginPath();
+	ctx.arc(320,ys1,30,0,Math.PI*2,false);
+	ctx.fillStyle="#980BE8";
+	ctx.fill();
+	ctx.fillStyle="#0095DD";
+	ctx.fillText("BOMB",300,ys1+2);
+	ctx.closePath();
+	ctx.beginPath()
+	ctx.arc(320,ys2,30,0,Math.PI*2,false);
+	ctx.fillStyle="#0BE815";
+	ctx.fill();
+	ctx.fillStyle="#0095DD";
+	ctx.fillText("SPLIT",300,ys2+2);
+	ctx.closePath();
+
+	ctx.beginPath();
+	ctx.arc(320,ys3,30,0,Math.PI*2,false);
+	ctx.fillStyle="#F3780B";
+	ctx.fill();
+	ctx.fillStyle="#0095DD";
+	ctx.fillText("WARP",300,ys3+2);
+    ctx.closePath();
+	ctx.beginPath();
+	ctx.arc(320,ys4,30,0,Math.PI*2,false);
+	ctx.fillStyle="#980BE8";
+	ctx.fill();
+	ctx.fillStyle="#0095DD";
+	ctx.fillText("BOMB",300,ys4+2);
+	ctx.closePath();
+	ctx.beginPath()
+	ctx.arc(320,ys5,30,0,Math.PI*2,false);
+	ctx.fillStyle="#0BE815";
+	ctx.fill();
+	ctx.fillStyle="#0095DD";
+	ctx.fillText("SPLIT",300,ys5+2);
+	ctx.closePath();
+		ctx.beginPath();
+	ctx.arc(320,ys6,30,0,Math.PI*2,false);
+	ctx.fillStyle="#F3780B";
+	ctx.fill();
+	ctx.fillStyle="#0095DD";
+	ctx.fillText("WARP",300,ys6+2);
+    ctx.closePath();
+
+	
+}
+function drawobstacle()
+{
+	ctx.beginPath();
+	ctx.rect(160,100,50,60);
+	ctx.fillStyle="blue";
+	ctx.strokeStyle="black"
+	ctx.fill();
+	ctx.stroke();
+	ctx.closePath();
+	ctx.fillStyle="black";
+	ctx.beginPath();
+	ctx.rect(160,250,50,60);
+	ctx.fillStyle="blue"
+	ctx.strokeStyle="black"
+	ctx.fill();
+	ctx.stroke();
+	ctx.closePath();
+	ctx.beginPath();
+	ctx.rect(160,400,50,60);
+	ctx.fillStyle="blue"
+	ctx.strokeStyle="black"
+	ctx.fill();
+	ctx.stroke();
+	ctx.closePath();
+	ctx.fillStyle="black"
+}
+function draw()
+{if(paused)
+	{
+		ctx.beginPath();
+		ctx.rect(150,250,220,150);
+ctx.fillStyle="#0BE8E8";
+ctx.fill();
+ctx.fillStyle="#0095DD";
+ctx.font=" 16px Arial";
+ctx.fillText("The game has been paused",160,325);
+ctx.closePath();
+clearInterval(draw);
+
+	}
+	if(!paused)
+
+	{ctx.clearRect(0,0,canvas.width,canvas.height);
+	drawbullseye();
+	drawbow();
+	if(splitarrow>0)
+	{
+ya-=100;
+drawarrow();
+ya+=100;
+drawarrow();
+	}
+	drawarrow();
+	drawlives();
+	drawbombandsplit();
+drawobstacle();
+
+
+	
+	if(y+dy<(radius+40)||y+dy>canvas.height-(radius+40))
+		dy=-dy;
+	if(uppressed&&yb-50>0)
+		{yb-=5;ya-=5;}
+	else if(downpressed&&yb+50<canvas.width)
+		{yb+=5;ya+=5;}
+
+	if(ys6-dys<0)
+		{ys1=550;ys2=750;ys3=950;ys4=1150;ys5=1350;ys6=1550;}
+
+	if(spacepressed&&pull==0)
+	{
+		drawarrowpull();
+
+	}
+else {
+	if(k>0)
+{xa+=3;pull++;
+	
+
+if(!splited)
+{
+	if((xa+80>160)&&(xa+80<210)&&((ya>100&&ya<160)||(ya>250&&ya<310)||(ya>400&&ya<460)))
+{
+	xa=xb;k=0;pull=0;lives--;ya=yb;
+	drawarrow();
+
+}
+
+if(((xa+80>x-radius)&&(xa+80<x+radius))&&((ya>y-radius)&&(ya<y+radius))&&(distance(xa+80,ya,x,y)<radius))
+{sleep(2000,50);
+	score+=50;
+	xa=xb;k=0;pull=0;lives--;ya=yb;
+	splitarrow=0;
+	
+	drawarrow();
+}
+
+else if(((distance(xa+80,ya,x,y)<(radius+15))&&(distance(xa+90,ya,x,y)>radius))&&((xa+80>x-(radius+15))&&(xa+80<x+radius+15))&&((xa+80<x-radius)||(xa+80>x+radius))&&(((ya>y-(radius+15))&&(ya<y+radius+15))&&((ya<y-radius)||(ya>y+radius))))
+{sleep(2000,30);
+	score+=30;
+	xa=xb;k=0;pull=0;lives--;	splitarrow=0;ya=yb;
+
+	drawarrow();}
+ 
+ else if((distance(xa+80,ya,x,y)<(radius+40))&&(distance(xa+90,ya,x,y)>(radius+15))&&((xa+80>x-(radius+40))&&(xa+80<x+radius+40))&&((xa+80<x-(radius+15))||(xa+80>x+radius+15))&&(((ya>y-(radius+40))&&(ya<y+radius+40))&&((ya<y-(radius+15))||(ya>y+radius+15))))
+	{sleep(2000,10);
+	score+=10;
+	xa=xb;k=0;pull=0;lives--;	splitarrow=0;ya=yb;
+
+	drawarrow();
+}
+
+}
+else
+{
+if(((xa+80>x-radius)&&(xa+80<x+radius))&&(((ya>y-radius)&&(ya<y+radius))||((ya-100>y-radius)&&(ya-100<y+radius)))&&((distance(xa+80,ya,x,y)<radius)||(distance(xa+80,ya-100,x,y)<radius)))
+{sleep(2000,50);
+	score+=50;
+	xa=xb;k=0;pull=0;lives--;ya=yb;splited=false;
+	splitarrow=0;
+	
+	drawarrow();
+}
+
+else if((((distance(xa+80,ya,x,y)<(radius+15))&&(distance(xa+90,ya,x,y)>radius))||((distance(xa+80,ya-100,x,y)<(radius+15))&&(distance(xa+90,ya-100,x,y)>radius)))&&((xa+80>x-(radius+15))&&(xa+80<x+radius+15))&&((xa+80<x-radius)||(xa+80>x+radius))&&((((ya>y-(radius+15))&&(ya<y+radius+15))&&((ya<y-radius)||(ya>y+radius)))||(((ya-100>y-(radius+15))&&(ya-100<y+radius+15))&&((ya-100<y-radius)||(ya-100>y+radius)))))
+{sleep(2000,30);
+	score+=30;
+	xa=xb;k=0;pull=0;lives--;	splitarrow=0;ya=yb;splited=false;
+
+	drawarrow();}
+ 
+ else if((((distance(xa+80,ya,x,y)<(radius+40))&&(distance(xa+90,ya,x,y)>(radius+15)))||((distance(xa+80,ya-100,x,y)<(radius+40))&&(distance(xa+90,ya-100,x,y)>(radius+15))))&&((xa+80>x-(radius+40))&&(xa+80<x+radius+40))&&((xa+80<x-(radius+15))||(xa+80>x+radius+15))&&((((ya>y-(radius+40))&&(ya<y+radius+40))&&((ya<y-(radius+15))||(ya>y+radius+15)))||(((ya-100>y-(radius+40))&&(ya-100<y+radius+40))&&((ya-100<y-(radius+15))||(ya-100>y+radius+15)))))
+	{sleep(2000,10);
+	score+=10;
+	xa=xb;k=0;pull=0;lives--;	splitarrow=0;ya=yb;splited=false;
+
+	drawarrow();
+}
+}
+
+if(((xa+80>290)&&(xa+80<350))&&(((ya>ys1-30)&&(ya<ys1+30))||((ya>ys4-30)&&(ya<ys4+30)))&&((distance(xa+80,ya,320,ys1)<30)||(distance(xa+80,ya,320,ys4)<30)))
+{
+	alert("You hit a bomb and lost an arrow!");
+	lives--;
+	xa=xb;k=0;pull=0; 	splitarrow=0;ya=yb;
+	drawarrow();
+
+}
+
+if(((xa+80>290)&&(xa+80<350))&&(((ya>ys3-30)&&(ya<ys3+30))||((ya>ys6-30)&&(ya<ys6+30)))&&((distance(xa+80,ya,320,ys3)<30)||(distance(xa+80,ya,320,ys6)<30)))
+{
+sleep(300);
+xa=320;
+ya=Math.floor(Math.random()*((y+40)-(y-40)+1))+(y-40);
+drawarrow();
+sleep(200);
+
+}
+if(((xa+80>290)&&(xa+80<350))&&(((ya>ys2-30)&&(ya<ys2+30))||((ya>ys4-30)&&(ya<ys4+30)))&&((distance(xa+80,ya,320,ys2)<30)||(distance(xa+80,ya,320,ys4)<30)))
+{splitarrow++;splited=true;
+	xa+=40;
+	ya-=50;
+	drawarrow();
+	ya+=100;
+	drawarrow();
+
+}
+
+if(xa+80>canvas.width)
+{lives--;xa=xb;k=0;pull=0; 
+	drawarrow();	splitarrow=0;ya=yb;
+}
+if(lives==0)
+{
+	alert("Game over. You scored "+score+". Click Ok to play again");
+	document.location.reload();
+}
+
+}
+}
+	y+=dy;
+	ys1-=dys;ys2-=dys;ys3-=dys;ys4-=dys;ys5-=dys;ys6-=dys;
+
+}
+
+requestAnimationFrame(draw)
+}
+
+draw();
+
+
+
+
+
+</script>
+<div class="buttons">
+<button id="pause" onclick="pausegame()">Pause</button><button id="resume" onclick="resumegame()">Resume</button><button id="restart" onclick="restartgame()">Restart</button>
+</div>
+<embed loop="true"  src="bgm.mp3" hidden="true" type="audio/mpeg"></embed>
+</div>
+<div class="overall">
+<img src="http://static.srcdn.com/wp-content/uploads/Green-Arrow-shooting-three-arrows-at-once.jpg" width="373px" height="600px">
+</div>
+</body>
+</html>
+
